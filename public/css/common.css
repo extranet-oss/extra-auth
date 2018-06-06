@@ -197,3 +197,16 @@ pre {
 #login .debug:empty {
   display:none;
 }
+
+@media screen and (max-width: 512px) {
+
+  #login .extranet-logo {
+    width: 64px;
+    margin-top: 32px;
+  }
+
+  #login .container {
+    width: 100%;
+    margin-top: 32px;
+  }
+}
