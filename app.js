@@ -35,8 +35,8 @@ app.use(serve(path.join(__dirname, 'public'), {
 }));
 
 // Error handler
-const error_handler = async (ctx, error) => {
-  var dev = ctx.app.env === 'development';
+async function error_handler(ctx, error) {
+  let dev = ctx.app.env === 'development';
 
   ctx.state = {
     title: statuses[error.status],
