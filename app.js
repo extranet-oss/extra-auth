@@ -39,12 +39,12 @@ async function error_handler(ctx, error) {
   let dev = ctx.app.env === 'development';
 
   ctx.state = {
-    title: statuses[error.status],
+    title: statuses[error.status || 500],
     message: error.expose || dev ? error.message : '',
     error: dev ? `${error.stack}\n\n${JSON.stringify(error, null, 4)}` : ''
   };
 
-  ctx.status = error.status;
+  ctx.status = error.status || 500;
   await ctx.render('error');
 };
 
