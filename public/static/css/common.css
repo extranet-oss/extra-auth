@@ -163,6 +163,10 @@ pre {
   text-align: center;
 }
 
+.container {
+  display: block;
+}
+
 #login {
   background: fixed url(/static/img/background.jpg) center center;
   background-size: cover;
@@ -174,12 +178,13 @@ pre {
 #login .extranet-logo {
   fill: #FFF;
   width: 128px;
-  margin-top: 64px;
+  height: 128px;
+  margin: 64px 0 0 0;
+  display: block;
 }
 
 #login .container {
   width: 512px;
-  margin: 0 auto;
   background: rgba(255, 255, 255, .1);
   padding: 32px;
   margin-top: 64px;
