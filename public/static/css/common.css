@@ -159,6 +159,10 @@ pre {
   font-family: monospace;
 }
 
+.text-center {
+  text-align: center;
+}
+
 #login {
   background: fixed url(/static/img/background.jpg) center center;
   background-size: cover;
@@ -184,6 +188,7 @@ pre {
 #login h1 {
   font-size: 2rem;
   text-align: center;
+  margin-bottom: .5em;
 }
 
 #login .debug {
@@ -208,5 +213,6 @@ pre {
   #login .container {
     width: 100%;
     margin-top: 32px;
+    padding: 16px;
   }
 }

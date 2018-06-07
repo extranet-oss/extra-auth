@@ -5,6 +5,7 @@ const etag = require('koa-etag');
 const path = require('path');
 const hbs = require('koa-hbs');
 const serve = require('koa-static');
+const statuses = require('statuses');
 const Router = require('koa-router');
 const mount = require('koa-mount');
 
@@ -34,14 +35,16 @@ app.use(serve(path.join(__dirname, 'public'), {
 }));
 
 // Error handler
-const error_handler = async (ctx, out, error) => {
+const error_handler = async (ctx, error) => {
+  var dev = ctx.app.env === 'development';
+
   ctx.state = {
-    layout: 'layout',
-    title: error.message,
-    message: error.message,
-    error: ctx.app.env === 'development' ? `${error.stack}\n\n${JSON.stringify(error, null, 4)}` : {}
+    title: statuses[error.status],
+    message: error.expose || dev ? error.message : '',
+    error: dev ? `${error.stack}\n\n${JSON.stringify(error, null, 4)}` : ''
   };
 
+  ctx.status = error.status;
   await ctx.render('error');
 };
 
@@ -49,7 +52,7 @@ app.use(async (ctx, next) => {
   try {
     await next();
   } catch (error) {
-    await error_handler(ctx, {}, error);
+    await error_handler(ctx, error);
   }
 });
 
@@ -74,16 +77,12 @@ const oidc = new Provider('https://login.dev.tryextra.net/', {
     devInteractions: false
   },
   renderError: async (ctx, out, error) => {
-    switch (out.error) {
-
-      case 'invalid_request':
-        error.message = 'Invalid Request';
-        break;
-
-      default:
-        error.message = out.error_description;
+    if (ctx.accepts('html')) {
+      error.message = out.error_description;
+      await error_handler(ctx, error);
+    } else {
+      ctx.body = out;
     }
-    await error_handler(ctx, out, error);
   }
 });
 
