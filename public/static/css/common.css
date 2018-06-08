@@ -159,12 +159,26 @@ pre {
   font-family: monospace;
 }
 
+p {
+  margin-bottom: .75em;
+  line-height: 1.5em;
+}
+
+p:last-child {
+  margin-bottom: 0;
+}
+
 .text-center {
   text-align: center;
 }
 
 .container {
   display: block;
+}
+
+.hint {
+  color: #CCC;
+  font-size: 80%;
 }
 
 #login {
@@ -207,6 +221,26 @@ pre {
 #login .debug:empty {
   display:none;
 }
+
+#login .signin-button {
+  display: block;
+  border: none;
+  margin-bottom: 16px;
+}
+
+#login .signin-button .microsoft-signin-dark {
+  width: 100%;
+}
+
+#login .signin-button .microsoft-signin-dark .background {
+  fill: rgba(255, 255, 255, .1);
+  transition: fill .3s ease;
+}
+
+#login .signin-button:hover .microsoft-signin-dark .background {
+  fill: rgba(255, 255, 255, .05);
+}
+
 
 @media screen and (max-width: 512px) {
 
