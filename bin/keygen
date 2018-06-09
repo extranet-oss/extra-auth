@@ -1,0 +1,172 @@
+#!/usr/bin/env node
+
+const fs = require('fs');
+const path = require('path');
+const readline = require('readline');
+const { JWK } = require('node-jose');
+
+// Setup readline
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
+
+rl.on('SIGCONT', () => {
+  rl.prompt();
+});
+
+// Default keystore
+var filename = path.join(__dirname, '../keystore.json');
+
+// Ask key filename to user
+function askFilename() {
+  return new Promise((resolve, reject) => {
+    rl.question(`keystore file? (${filename}): `, answer => {
+      if (answer.trim().length > 0)
+        filename = answer.trim();
+      resolve();
+    });
+  });
+}
+
+// Default keystore
+var keystore = {"keys": []};
+
+// Load keystore from file
+function loadKeyStore() {
+  return new Promise((resolve, reject) => {
+
+    // Check keystore access (exists, read, write)
+    fs.access(filename, fs.constants.F_OK | fs.constants.R_OK | fs.constants.W_OK, (err) => {
+
+      // File not yet created
+      if (err && err.code == 'ENOENT') {
+        console.log('using a new keystore...');
+        resolve();
+      }
+      // Insufficient permissions
+      else if (err) {
+        reject(err);
+      }
+      // File exists
+      else {
+
+        // Ask if we load file or replace it
+        rl.question('keystore exists, import? (yes): ', answer => {
+          if (answer.trim().length == 0)
+            answer = 'yes';
+          if (answer.trim().match(/^y(es)?$/i)) {
+            console.log('importing keystore...');
+
+            // read file & import keystore
+            fs.readFile(filename, 'utf8', (err, data) => {
+              if (err) reject(err);
+              JWK.asKeyStore(data).then(result => {
+                keystore = result.toJSON(true);
+                resolve();
+              });
+            });
+          } else {
+            console.log('using a new keystore...');
+            resolve();
+          }
+        });
+      }
+    });
+  });
+}
+
+// Key settings
+const ktype = 'RSA';
+const ksize = 2048;
+const kprops = {
+  alg: 'RS256',
+  use: 'sig',
+};
+
+// Generates the key and adds it at the end of the keystore
+function generateKey() {
+  console.log(`generating new ${ktype} ${ksize} bit key...`);
+  return JWK.createKey(ktype, ksize, kprops).then((key) => {
+    console.log(`new key generated: kid=${key.kid}`);
+    keystore['keys'].push(key.toJSON(true));
+  });
+}
+
+// Saves keystore to filesystem
+function writeKeystore() {
+  return new Promise((resolve, reject) => {
+    fs.writeFile(filename, JSON.stringify(keystore, null, 2), err => {
+      if (err) reject(err);
+      console.log('keystore saved.');
+      resolve();
+    })
+  });
+}
+
+// Ask user to reload OPs before continuing
+function askReload() {
+  return new Promise((resolve, reject) => {
+    console.log('Please reload the OP(s) before rotating the keys.');
+    rl.question('Press ENTER when done.', answer => {
+      resolve();
+    });
+  });
+}
+
+// Places end key at front of keystore
+function rotateKeys() {
+  const i = keystore['keys'].length - 1;
+  const key = keystore['keys'][i];
+
+  keystore['keys'].splice(i, 1);
+  keystore['keys'].unshift(key);
+  console.log('Rotated new key to front of keystore.')
+}
+
+// Asks user to delete previous keys (excluding first & second one)
+function askCleanPreviousKeys() {
+  return new Promise((resolve, reject) => {
+    const count = keystore['keys'].length - 2;
+    if (count <= 0) {
+      resolve();
+    }
+    rl.question(`remove ${count} outdated keys? (yes): `, answer => {
+      if (answer.trim().length == 0)
+        answer = 'yes';
+      if (answer.trim().match(/^y(es)?$/i)) {
+        keystore['keys'].splice(2, count);
+        console.log(`removed ${count} keys.`);
+      }
+      resolve();
+    });
+  });
+}
+
+// Whole process
+askFilename()
+.then(loadKeyStore)
+.then(generateKey)
+.then(writeKeystore)
+.then(() => {
+  return new Promise((resolve, reject) => {
+    if (keystore['keys'].length > 1) {
+      askReload()
+      .then(rotateKeys)
+      .then(askCleanPreviousKeys)
+      .then(writeKeystore)
+      .then(resolve)
+    } else {
+      resolve()
+    }
+  })
+})
+.then(() => {
+  console.log('You can now reload the OP(s).');
+  rl.close()
+})
+.catch(err => {
+  rl.close();
+  console.error(err.message);
+  process.exitCode = 1;
+});

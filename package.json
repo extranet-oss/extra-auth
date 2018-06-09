@@ -19,6 +19,7 @@
     "koa-router": "^7.4.0",
     "koa-session": "^5.8.1",
     "koa-static": "^4.0.3",
+    "node-jose": "^1.0.0",
     "oidc-provider": "^4.0.2",
     "passport-azure-ad": "^3.0.12",
     "statuses": "^1.5.0"

@@ -130,7 +130,11 @@ const oidc = new Provider(external_url(''), {
   }
 });
 
-oidc.initialize({ }).then(() => {
+const keystore = require('./keystore.json');
+
+oidc.initialize({
+  keystore,
+}).then(() => {
   oidc.use(view_engine);
 
   async function checkFlowSession(ctx, next) {
