@@ -120,13 +120,20 @@ const oidc = new Provider(external_url(''), {
   features: {
     devInteractions: false
   },
-  renderError: async (ctx, out, error) => {
+  async renderError(ctx, out, error) {
     if (ctx.accepts('html')) {
       error.message = out.error_description;
       await error_handler(ctx, error);
     } else {
       ctx.body = out;
     }
+  },
+  async logoutSource(ctx, form) {
+    ctx.state = {
+      title: 'Signing you out...',
+      form
+    };
+    await ctx.render('session_end');
   }
 });
 
