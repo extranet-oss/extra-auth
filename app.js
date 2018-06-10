@@ -109,10 +109,13 @@ const Provider = require('oidc-provider');
 const oidc = new Provider(external_url(''), {
   routes: {
     authorization: '/oauth/authorize',
-    certificates: '/discovery/certs',
+    certificates: '/discovery/keys',
+    check_session: '/session/check',
+    end_session: '/session/end',
+    introspection: '/oauth/tokeninfo',
     revocation: '/oauth/revoke',
     token: '/oauth/token',
-    userinfo: '/openid/userinfo',
+    userinfo: '/openid/userinfo'
   },
   async interactionUrl(ctx, interaction) {
     return `/interaction/?request_id=${ctx.oidc.uuid}`;
