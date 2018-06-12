@@ -121,7 +121,23 @@ const oidc = new Provider(external_url(''), {
     return `/interaction/?request_id=${ctx.oidc.uuid}`;
   },
   features: {
-    devInteractions: false
+    devInteractions: false,
+    discovery: true,
+    claimsParameter: true,
+    clientCredentials: true,
+    encryption: false,
+    alwaysIssueRefresh: false,
+    request: false,
+    requestUri: false,
+    introspection: true,
+    revocation: true,
+    oauthNativeApps: true,
+    sessionManagement: true,
+    backchannelLogout: false,
+    frontchannelLogout: false,
+    registration: false,
+    registrationManagement: false,
+    pkce: true
   },
   async renderError(ctx, out, error) {
     if (ctx.accepts('html')) {
