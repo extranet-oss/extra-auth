@@ -12,6 +12,7 @@ const passport = require('koa-passport');
 const { OIDCStrategy } = require('passport-azure-ad');
 const Router = require('koa-router');
 const mount = require('koa-mount');
+const querystring = require('querystring');
 
 const config = require('./config.json');
 
@@ -139,6 +140,9 @@ const oidc = new Provider(external_url(''), {
     registrationManagement: false,
     pkce: true
   },
+  async postLogoutRedirectUri(ctx) {
+    return 'https://tryextra.net/';
+  },
   async renderError(ctx, out, error) {
     if (ctx.accepts('html')) {
       error.message = out.error_description;
@@ -150,8 +154,13 @@ const oidc = new Provider(external_url(''), {
   async logoutSource(ctx, form) {
     ctx.state = {
       title: 'Signing you out...',
-      form
+      form,
+      redirect_uri: ctx.oidc.session.logout.postLogoutRedirectUri
     };
+
+    if (ctx.oidc.session.logout.state)
+      ctx.state.redirect_uri += `?${querystring.stringify({state: ctx.oidc.session.logout.state})}`;
+
     await ctx.render('session_end');
   }
 });

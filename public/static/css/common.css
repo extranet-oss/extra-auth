@@ -275,6 +275,37 @@ a.button:hover {
   fill: rgba(255, 255, 255, .05);
 }
 
+.spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #FFF;
+    display: inline-block;
+    animation: spinner-start 2s ease-out both, spinner 4s 2s infinite ease;
+    border-radius: 100%;
+    border-top-color: transparent;
+    border-right: none;
+    margin: 4px;
+}
+
+.spinner.spinner-big {
+    width: 64px;
+    height: 64px;
+    border-width: 4px;
+    margin: 16px;
+}
+
+@keyframes spinner-start {
+    from { transform: rotate(-2160deg); }
+    to { transform: rotate(0deg); }
+}
+
+@keyframes spinner {
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(810deg); }
+    50% { transform: rotate(1620deg); }
+    75% { transform: rotate(2430deg); }
+    100% { transform: rotate(3240deg); }
+}
 
 @media screen and (max-width: 512px) {
 
