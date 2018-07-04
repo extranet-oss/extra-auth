@@ -260,19 +260,35 @@ a.button:hover {
   display: block;
   border: none;
   margin-bottom: 16px;
+  background: rgba(255, 255, 255, .1);
+  transition: background .3s ease;
+  position: relative;
+}
+
+#login .signin-button:hover {
+  background: rgba(255, 255, 255, .05);
 }
 
 #login .signin-button .microsoft-signin-dark {
   width: 100%;
+  transition: .3s ease opacity;
 }
 
-#login .signin-button .microsoft-signin-dark .background {
-  fill: rgba(255, 255, 255, .1);
-  transition: fill .3s ease;
+#login .signin-button .spinner.spinner-medium {
+  display: none;
+  position: absolute;
+  top: 50%;
+  margin-top: -16px;
+  left: 50%;
+  margin-left: -16px;
 }
 
-#login .signin-button:hover .microsoft-signin-dark .background {
-  fill: rgba(255, 255, 255, .05);
+#login .signin-button.loading .microsoft-signin-dark {
+  opacity: 0;
+}
+
+#login .signin-button.loading .spinner.spinner-medium {
+  display: block;
 }
 
 .spinner {
@@ -285,6 +301,13 @@ a.button:hover {
     border-top-color: transparent;
     border-right: none;
     margin: 4px;
+}
+
+.spinner.spinner-medium {
+    width: 32px;
+    height: 32px;
+    border-width: 3px;
+    margin: 8px;
 }
 
 .spinner.spinner-big {
