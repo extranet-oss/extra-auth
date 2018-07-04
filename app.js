@@ -42,7 +42,7 @@ app.use(serve(path.join(__dirname, 'public'), {
 }));
 
 // Error handler
-async function error_handler(ctx, error) {
+async function errorHandler(ctx, error) {
   let dev = ctx.app.env === 'development';
 
   ctx.state = {
@@ -55,11 +55,11 @@ async function error_handler(ctx, error) {
   await ctx.render('error');
 };
 
-app.use(async (ctx, next) => {
+app.use(async function errorHandlerMiddleware(ctx, next) {
   try {
     await next();
   } catch (error) {
-    await error_handler(ctx, error);
+    await errorHandler(ctx, error);
   }
 });
 
@@ -146,7 +146,7 @@ const oidc = new Provider(external_url(''), {
   async renderError(ctx, out, error) {
     if (ctx.accepts('html')) {
       error.message = out.error_description;
-      await error_handler(ctx, error);
+      await errorHandler(ctx, error);
     } else {
       ctx.body = out;
     }
@@ -167,7 +167,7 @@ const oidc = new Provider(external_url(''), {
 
 const keystore = require('./keystore.json');
 
-(async () => {
+(async function main() {
   await oidc.initialize({
     keystore,
   });
@@ -184,13 +184,13 @@ const keystore = require('./keystore.json');
 
   router.get('/interaction/',
     checkFlowSession,
-    async ctx => {
+    async function interactionFlow(ctx) {
       await ctx.redirect(`/interaction/signin?request_id=${ctx.state.details.uuid}`);
     });
 
   router.get('/interaction/signin',
     checkFlowSession,
-    async ctx => {
+    async function signinFlow(ctx) {
       ctx.state.title = ctx.state.details.interaction.reason_description;
 
       console.log(ctx.state.details)
@@ -199,7 +199,7 @@ const keystore = require('./keystore.json');
 
   router.get('/interaction/azuread',
     checkFlowSession,
-    async (ctx, next) => {
+    async function azureadFlowStart(ctx, next) {
       await passport.authenticate('azuread-openidconnect', {
         failureRedirect: `/interaction/signin?request_id=${ctx.state.details.uuid}`,
         session: false,
@@ -208,13 +208,13 @@ const keystore = require('./keystore.json');
     })
   .post('/interaction/azuread',
     checkFlowSession,
-    async (ctx, next) => {
+    async function azureadFlowContinue(ctx, next) {
       await passport.authenticate('azuread-openidconnect', {
         failureRedirect: `/interaction/signin?request_id=${ctx.state.details.uuid}`,
         session: false
       })(ctx, next);
     },
-    async ctx => {
+    async function azureadFlowSucceed(ctx) {
       await oidc.interactionFinished(ctx.req, ctx.res, {
         login: {
           account: ctx.state.user.oid
