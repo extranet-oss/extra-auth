@@ -178,6 +178,8 @@ const keystore = require('./keystore.json');
     ctx.assert(ctx.cookies.get(oidc.cookieName('interaction')), 401, 'Session expired');
     const details = await oidc.interactionDetails(ctx.req);
     ctx.assert(details.uuid, 401, 'Session expired');
+    if (ctx.query.request_id)
+      ctx.assert(details.uuid == ctx.query.request_id, 401, 'Session expired');
     ctx.state.details = details;
     await next();
   }
@@ -185,23 +187,20 @@ const keystore = require('./keystore.json');
   router.get('/interaction/',
     checkFlowSession,
     async function interactionFlow(ctx) {
-      await ctx.redirect(`/interaction/signin?request_id=${ctx.state.details.uuid}`);
-    });
 
-  router.get('/interaction/signin',
-    checkFlowSession,
-    async function signinFlow(ctx) {
       ctx.state.title = ctx.state.details.interaction.reason_description;
 
-      console.log(ctx.state.details)
-      await ctx.render('login');
+      switch (ctx.state.details.interaction.reason) {
+        default:
+          await ctx.render('login');
+      }
     });
 
   router.get('/interaction/azuread',
     checkFlowSession,
     async function azureadFlowStart(ctx, next) {
       await passport.authenticate('azuread-openidconnect', {
-        failureRedirect: `/interaction/signin?request_id=${ctx.state.details.uuid}`,
+        failureRedirect: `/interaction/?request_id=${ctx.state.details.uuid}`,
         session: false,
         domain_hint: config.azuread.tenantDomain
       })(ctx, next);
@@ -210,7 +209,7 @@ const keystore = require('./keystore.json');
     checkFlowSession,
     async function azureadFlowContinue(ctx, next) {
       await passport.authenticate('azuread-openidconnect', {
-        failureRedirect: `/interaction/signin?request_id=${ctx.state.details.uuid}`,
+        failureRedirect: `/interaction/?request_id=${ctx.state.details.uuid}`,
         session: false
       })(ctx, next);
     },
