@@ -330,6 +330,15 @@ a.button:hover {
     100% { transform: rotate(3240deg); }
 }
 
+.offscreen {
+  visibility: hidden;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height:0;
+  width:0;
+}
+
 @media screen and (max-width: 512px) {
 
   #login .extranet-logo {

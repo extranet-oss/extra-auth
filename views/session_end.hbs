@@ -11,8 +11,35 @@
 </div>
 
 {{{form}}}
+<div id="frame-container" class="offscreen"></div>
 <script type="text/javascript">
 document.addEventListener('DOMContentLoaded', function(){
+  function finish() {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('complete').style.display = 'block';
+    setTimeout(function(){
+      window.location = "{{{redirect_uri}}}";
+    }, 5000);
+  }
+
+  function frontchannelLogout(frames_markup, timeout) {
+    var loaded = 0;
+    function frameOnLoad() {
+      loaded += 1;
+      if (loaded === frames_markup.length) finish();
+    }
+
+    var container = document.getElementById('frame-container');
+    container.insertAdjacentHTML('beforeend', frames_markup.join(''));
+
+    var frames = container.getElementsByTagName('iframe');
+    for (var i = 0; i < frames.length; i++) {
+      frames[i].onload = frameOnLoad;
+    }
+
+    setTimeout(finish, timeout);
+  }
+
   var data = new URLSearchParams();
 
   var form = document.getElementById('op.logoutForm');
@@ -32,11 +59,17 @@ document.addEventListener('DOMContentLoaded', function(){
     redirect: 'manual'
   })
   .then(function(response){
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('complete').style.display = 'block';
-    setTimeout(function(){
-      window.location = "{{{redirect_uri}}}";
-    }, 5000);
-  });
+    if (response.type == 'opaqueredirect') {
+      finish();
+      return;
+    }
+    return response.json();
+  })
+  .then(function(json){
+    if (json.action == "frontchannelLogout")
+      frontchannelLogout(json.data.frames, json.data.timeout);
+    else
+      finish();
+  })
 });
 </script>

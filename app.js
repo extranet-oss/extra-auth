@@ -134,8 +134,8 @@ const oidc = new Provider(external_url(''), {
     revocation: true,
     oauthNativeApps: true,
     sessionManagement: true,
-    backchannelLogout: false,
-    frontchannelLogout: false,
+    backchannelLogout: true,
+    frontchannelLogout: true,
     registration: false,
     registrationManagement: false,
     pkce: true
@@ -162,6 +162,15 @@ const oidc = new Provider(external_url(''), {
       ctx.state.redirect_uri += `?${querystring.stringify({state: ctx.oidc.session.logout.state})}`;
 
     await ctx.render('session_end');
+  },
+  async frontchannelLogoutPendingSource(ctx, frames, postLogoutRedirectUri, timeout) {
+    ctx.body = {
+      action: 'frontchannelLogout',
+      data: {
+        frames,
+        timeout
+      }
+    };
   }
 });
 
