@@ -73,20 +73,13 @@ app.use(bodyparser({ patchNode: true }));
 app.use(passport.initialize())
 app.use(passport.session())
 
-function external_scheme() {
-  return config.host.startsWith('127.0.0.1') ? 'http' : 'https';
-}
-function external_url(path) {
-  return `${external_scheme()}://${config.host}${path}`;
-}
-
 passport.use(new OIDCStrategy({
     identityMetadata: `https://login.microsoftonline.com/${config.azuread.tenantID}/.well-known/openid-configuration`,
     clientID: config.azuread.clientID,
     responseType: 'id_token',
     responseMode: 'form_post',
-    redirectUrl: external_url('/interaction/azuread'),
-    allowHttpForRedirectUrl: external_scheme() == 'http',
+    redirectUrl: `${config.hosts.login}/interaction/azuread`,
+    allowHttpForRedirectUrl: config.hosts.login.startsWith('http'),
     passReqToCallback: false
   },
   function(iss, sub, profile, accessToken, refreshToken, done) {
@@ -107,7 +100,7 @@ app.use(router.routes())
 // OIDC Provider setup
 const Provider = require('oidc-provider');
 
-const oidc = new Provider(external_url(''), {
+const oidc = new Provider(config.hosts.login, {
   routes: {
     authorization: '/oauth/authorize',
     certificates: '/discovery/keys',
@@ -178,7 +171,7 @@ const oidc = new Provider(external_url(''), {
   },
   async audiences(ctx, sub, token, use, scope) {
     if (use == "access_token")
-      return ["http://127.0.0.1:3030"];
+      return [config.hosts.api];
 
     return undefined;
   }
