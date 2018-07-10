@@ -175,6 +175,12 @@ const oidc = new Provider(external_url(''), {
         timeout
       }
     };
+  },
+  async audiences(ctx, sub, token, use, scope) {
+    if (use == "access_token")
+      return ["http://127.0.0.1:3030"];
+
+    return undefined;
   }
 });
 
