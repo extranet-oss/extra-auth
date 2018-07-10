@@ -121,6 +121,10 @@ const oidc = new Provider(external_url(''), {
   async interactionUrl(ctx, interaction) {
     return `/interaction/?request_id=${ctx.oidc.uuid}`;
   },
+  formats: {
+    default: 'opaque',
+    AccessToken: 'jwt'
+  },
   features: {
     devInteractions: false,
     discovery: true,
