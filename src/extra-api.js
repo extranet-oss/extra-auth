@@ -21,7 +21,7 @@ module.exports = function (config) {
       await client.authenticate({
         strategy: 'token',
         token: config.extra_api.token
-      })
+      });
       debug('Successfully authenticated to extra-api!');
     }
     catch (err) {
@@ -33,4 +33,4 @@ module.exports = function (config) {
   authenticate();
 
   return client;
-}
+};
