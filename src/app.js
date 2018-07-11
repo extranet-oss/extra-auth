@@ -13,6 +13,7 @@ const mount = require('koa-mount');
 
 const errorHandler = require('./error.js');
 const setupAuthentication = require('./authentication.js');
+const setupApiClient = require('./extra-api.js');
 const setupProvider = require('./oidc.js');
 const setupRoutes = require('./routes.js');
 
@@ -64,6 +65,8 @@ app.use(session({ signed: false }, app));
 app.use(bodyparser({ patchNode: true }));
 
 setupAuthentication(app, config);
+// Setup extra-api client
+const client = setupApiClient(config);
 
 // OIDC Provider setup
 debug('Setting up oidc provider...');
