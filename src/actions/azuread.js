@@ -33,7 +33,7 @@ module.exports = function (router, oidc, config) {
       debug('Interaction azuread callback #2');
       await oidc.interactionFinished(ctx.req, ctx.res, {
         login: {
-          account: ctx.state.user.oid
+          account: ctx.state.user.id
         }
       });
     }

@@ -3,7 +3,9 @@ const Provider = require('oidc-provider');
 
 const errorHandler = require('./error.js');
 
-module.exports = function (config, keystore) {
+module.exports = function (client, config, keystore) {
+
+  const users = client.service('users');
 
   const {
     logoutSource,
@@ -30,6 +32,22 @@ module.exports = function (config, keystore) {
     formats: {
       default: 'opaque',
       AccessToken: 'jwt'
+    },
+
+    async findById(ctx, id) {
+      return {
+        accountId: id,
+        async claims(use, scope) {
+          debug('claims: ', use, scope);
+          return new Promise ((resolve, reject) => {
+            users.get(id)
+              .then(data => {
+                resolve({ sub: id });
+              })
+              .catch(reject);
+          });
+        },
+      };
     },
 
     claims: {

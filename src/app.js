@@ -64,13 +64,15 @@ app.use(session({ signed: false }, app));
 // parse body
 app.use(bodyparser({ patchNode: true }));
 
-setupAuthentication(app, config);
 // Setup extra-api client
 const client = setupApiClient(config);
 
+// Setup passport strategies
+setupAuthentication(app, client, config);
+
 // OIDC Provider setup
 debug('Setting up oidc provider...');
-setupProvider(config, keystore)
+setupProvider(client, config, keystore)
   .then(function providerReady(oidc) {
 
     debug('Oidc provider app ready.');
