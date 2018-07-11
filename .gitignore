@@ -231,4 +231,4 @@ $RECYCLE.BIN/
 
 # End of https://www.gitignore.io/api/node,code,linux,emacs,macos,windows,sublimetext
 
-/keystore.json
+/config/keystore.json

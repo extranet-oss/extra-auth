@@ -7,5 +7,10 @@
     "tenantID": "901cb4ca-b862-4029-9306-e5cd0f6d9f86",
     "tenantDomain": "epitech.eu",
     "clientID": "0661fde2-0a3f-45a1-9645-cda06745c2f3"
+  },
+  "oidc": {
+    "cookies": {
+      "thirdPartyCheckUrl": "https://cdn.rawgit.com/panva/3rdpartycookiecheck/92fead3f/start.html"
+    }
   }
 }
