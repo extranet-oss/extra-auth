@@ -8,6 +8,7 @@ const hbs = require('koa-hbs');
 const path = require('path');
 const serve = require('koa-static');
 const session = require('koa-session');
+const flash = require('koa-flash-simple');
 const bodyparser = require('koa-body');
 const mount = require('koa-mount');
 
@@ -60,6 +61,7 @@ app.use(async function errorHandlerMiddleware(ctx, next) {
 
 // session setup
 app.use(session({ signed: false }, app));
+app.use(flash());
 
 // parse body
 app.use(bodyparser({ patchNode: true }));

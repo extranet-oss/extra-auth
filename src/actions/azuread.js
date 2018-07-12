@@ -8,6 +8,14 @@ module.exports = function (router, oidc, config) {
 
   const checkSession = require('../middlewares/check-interaction-session.js')(oidc);
 
+  async function azureadFailure(ctx, message) {
+    ctx.flash.set({
+      title: 'Failed to sign in',
+      message
+    });
+    await ctx.redirect(`/interaction/failed?request_id=${ctx.state.details.uuid}`);
+  }
+
   router.get(dest,
     checkSession,
     async function azureadStart(ctx, next) {
@@ -16,6 +24,12 @@ module.exports = function (router, oidc, config) {
         failureRedirect: `/interaction/?request_id=${ctx.state.details.uuid}`,
         session: false,
         domain_hint: config.azuread.tenantDomain
+      }, async function (err, user, info) {
+        if (err) throw err;
+        if (!user) return await azureadFailure(ctx, info);
+
+        ctx.state.user = user;
+        await next();
       })(ctx, next);
     }
   );
@@ -27,6 +41,12 @@ module.exports = function (router, oidc, config) {
       await passport.authenticate('azuread-openidconnect', {
         failureRedirect: `/interaction/?request_id=${ctx.state.details.uuid}`,
         session: false
+      }, async function (err, user, info) {
+        if (err) throw err;
+        if (!user) return await azureadFailure(ctx, info);
+
+        ctx.state.user = user;
+        await next();
       })(ctx, next);
     },
     async function azureadSuccess(ctx) {
