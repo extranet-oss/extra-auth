@@ -1,7 +1,7 @@
 {
   "hosts": {
-    "login": "http://login.local.tryextra.net",
-    "api": "http://api.local.tryextra.net"
+    "login": "https://login.local.tryextra.net",
+    "api": "https://api.local.tryextra.net"
   },
   "azuread": {
     "tenantID": "901cb4ca-b862-4029-9306-e5cd0f6d9f86",
