@@ -6,7 +6,7 @@ const authentication = require('@feathersjs/authentication-client');
 const localStorage = require('localstorage-memory');
 
 module.exports = function (config) {
-  const socket = io(config.hosts.api);
+  const socket = io(config.extra_api.url);
   const client = feathers();
 
   client.configure(socketio(socket));
