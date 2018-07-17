@@ -78,7 +78,8 @@ module.exports = function (client, config, keystore) {
       frontchannelLogout: true,
       registration: false,
       registrationManagement: false,
-      pkce: true
+      pkce: true,
+      webMessageResponseMode: true
     },
 
     extraParams: [
