@@ -15,7 +15,7 @@ module.exports = function (client, config, keystore) {
   const oidc = new Provider(config.hosts.login, {
     routes: {
       authorization: '/oauth/authorize',
-      certificates: '/discovery/keys',
+      certificates: '/.well-known/jwks.json',
       check_session: '/session/check',
       end_session: '/session/end',
       introspection: '/oauth/tokeninfo',
