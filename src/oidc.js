@@ -93,6 +93,15 @@ module.exports = function (client, config, keystore) {
       thirdPartyCheckUrl: config.oidc.cookies.thirdPartyCheckUrl
     },
 
+    tokenEndpointAuthMethods: [
+      'client_secret_basic',
+    ],
+
+    unsupported: {
+      idTokenSigningAlgValues: ['none', 'HS256', 'HS384', 'HS512'],
+      userinfoSigningAlgValues: ['none', 'HS256', 'HS384', 'HS512']
+    },
+
     // eslint-disable-next-line no-unused-vars
     async postLogoutRedirectUri(ctx) {
       return 'https://tryextra.net/';
