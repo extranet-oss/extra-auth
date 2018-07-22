@@ -33,7 +33,8 @@ module.exports = function (client, config, keystore) {
 
     formats: {
       default: 'opaque',
-      AccessToken: 'jwt'
+      AccessToken: 'jwt',
+      ClientCredentials: 'jwt'
     },
 
     async findById(ctx, id) {
@@ -114,7 +115,7 @@ module.exports = function (client, config, keystore) {
 
     // eslint-disable-next-line no-unused-vars
     async audiences(ctx, sub, token, use, scope) {
-      if (use == 'access_token')
+      if (use == 'access_token' || use == 'client_credentials')
         return [config.hosts.api];
 
       return undefined;
