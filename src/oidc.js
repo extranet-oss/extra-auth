@@ -5,6 +5,8 @@ const errorHandler = require('./error.js');
 
 module.exports = function (client, config, keystore) {
 
+  const Adapter = require('./adapters')(client);
+
   const users = client.service('users');
 
   const {
@@ -121,14 +123,6 @@ module.exports = function (client, config, keystore) {
 
   return oidc.initialize({
     keystore,
-    clients: [{
-      token_endpoint_auth_method: 'client_secret_basic',
-      client_id: 'foo',
-      client_secret: 'bar',
-      redirect_uris: ['https://local.tryextra.net'],
-      grant_types: ['authorization_code', 'implicit', 'refresh_token'],
-      response_types: ['code', 'id_token'],
-      frontchannel_logout_uri: 'https://local.tryextra.net/logout'
-    }]
+    adapter: Adapter
   });
 };
