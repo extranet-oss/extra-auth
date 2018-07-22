@@ -168,6 +168,10 @@ p:last-child {
   margin-bottom: 0;
 }
 
+strong {
+  font-weight: bold;
+}
+
 button,
 a.button {
   border: 2px rgba(255, 255, 255, .1) solid;

@@ -4,7 +4,7 @@ const interaction = require('./actions/interaction.js');
 const azuread = require('./actions/azuread.js');
 const failed = require('./actions/failed.js');
 
-module.exports = function (app, oidc, config) {
+module.exports = function (app, oidc, client, config) {
 
   // Create default routes
   const router = new Router();
@@ -12,7 +12,7 @@ module.exports = function (app, oidc, config) {
   app.use(router.routes())
     .use(router.allowedMethods());
 
-  interaction(router, oidc, config);
+  interaction(router, oidc, client, config);
   azuread(router, oidc, config);
   failed(router, oidc, config);
 };

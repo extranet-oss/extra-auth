@@ -83,7 +83,7 @@ setupProvider(client, config, keystore)
     oidc.use(viewEngine);
 
     // setup interaction routes, needing oidc instance
-    setupRoutes(app, oidc, config);
+    setupRoutes(app, oidc, client, config);
 
     debug('Mounting oidc provider to main app...');
     app.use(mount(oidc.app));
