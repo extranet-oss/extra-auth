@@ -231,4 +231,5 @@ $RECYCLE.BIN/
 
 # End of https://www.gitignore.io/api/node,code,linux,emacs,macos,windows,sublimetext
 
-/config/keystore.json
+/config/jwks.json
+/config/cookiekeys.json

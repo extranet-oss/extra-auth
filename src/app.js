@@ -19,7 +19,8 @@ const setupProvider = require('./oidc.js');
 const setupRoutes = require('./routes.js');
 
 const config = require('../config/config.json');
-const keystore = require('../config/keystore.json');
+const jwks = require('../config/jwks.json');
+const cookiekeys = require('../config/cookiekeys.json');
 
 
 debug('Creating master app...');
@@ -29,6 +30,7 @@ const app = new Koa();
 
 // Trust proxy
 app.proxy = true;
+app.keys = cookiekeys;
 
 // Request logger
 app.use(morgan('dev'));
@@ -74,8 +76,9 @@ setupAuthentication(app, client, config);
 
 // OIDC Provider setup
 debug('Setting up oidc provider...');
-setupProvider(client, config, keystore)
+setupProvider(client, config, jwks, cookiekeys)
   .then(function providerReady(oidc) {
+    oidc.proxy = true;
 
     debug('Oidc provider app ready.');
     debug('Setting up interaction routes...');

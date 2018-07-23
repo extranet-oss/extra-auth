@@ -16,7 +16,7 @@ rl.on('SIGCONT', () => {
 });
 
 // Default keystore
-var filename = path.join(__dirname, '../keystore.json');
+var filename = path.join(__dirname, '../jwks.json');
 
 // Ask key filename to user
 function askFilename() {

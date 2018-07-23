@@ -3,7 +3,7 @@ const Provider = require('oidc-provider');
 
 const errorHandler = require('./error.js');
 
-module.exports = function (client, config, keystore) {
+module.exports = function (client, config, jwks, cookiekeys) {
 
   const Adapter = require('./adapters')(client);
 
@@ -90,6 +90,25 @@ module.exports = function (client, config, keystore) {
     ],
 
     cookies: {
+      keys: cookiekeys,
+      long: {
+        secure: true,
+        signed: true,
+        httpOnly: true,
+        maxAge: (14 * 24 * 60 * 60) * 1000 // 14 days in ms
+      },
+      short: {
+        secure: true,
+        signed: true,
+        httpOnly: true,
+        maxAge: (10 * 60) * 1000 // 10 minutes in ms
+      },
+      names: {
+        session: '_session',
+        interaction: '_grant',
+        resume: '_grant',
+        state: '_state'
+      },
       thirdPartyCheckUrl: config.oidc.cookies.thirdPartyCheckUrl
     },
 
@@ -132,7 +151,7 @@ module.exports = function (client, config, keystore) {
   });
 
   return oidc.initialize({
-    keystore,
+    keystore: jwks,
     adapter: Adapter
   });
 };
