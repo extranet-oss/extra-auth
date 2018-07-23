@@ -1,5 +1,7 @@
 const debug = require('debug')('extra-auth:server');
 
+const epochTime = require('oidc-provider/lib/helpers/epoch_time.js');
+
 // eslint-disable-next-line no-unused-vars
 module.exports = function (router, oidc, client, config) {
 
@@ -47,7 +49,7 @@ module.exports = function (router, oidc, client, config) {
         ctx.state.details.meta = {
           done: []
         };
-        ctx.state.details.save();
+        ctx.state.details.save(ctx.state.details.exp - epochTime());
         debug(`Initialized interaction meta data`);
       }
 

@@ -1,6 +1,8 @@
 const debug = require('debug')('extra-auth:server');
 const passport = require('koa-passport');
 
+const epochTime = require('oidc-provider/lib/helpers/epoch_time.js');
+
 // eslint-disable-next-line no-unused-vars
 module.exports = function (router, oidc, config) {
 
@@ -57,7 +59,7 @@ module.exports = function (router, oidc, config) {
       });
       ctx.state.details.accountId = ctx.state.user.id;
       ctx.state.details.meta.done.push('login');
-      await ctx.state.details.save();
+      await ctx.state.details.save(ctx.state.details.exp - epochTime());
       await ctx.redirect(`/interaction/?request_id=${ctx.state.details.uuid}`);
     }
   );
