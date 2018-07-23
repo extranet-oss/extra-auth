@@ -2,6 +2,7 @@ const debug = require('debug')('extra-auth:server');
 const Koa = require('koa');
 
 const morgan = require('koa-morgan');
+const helmet = require('koa-helmet');
 const conditional = require('koa-conditional-get');
 const etag = require('koa-etag');
 const hbs = require('koa-hbs');
@@ -34,6 +35,7 @@ app.keys = cookiekeys;
 
 // Request logger
 app.use(morgan('dev'));
+app.use(helmet());
 
 // Conditionnal GET for saving bandwidth
 app.use(conditional());

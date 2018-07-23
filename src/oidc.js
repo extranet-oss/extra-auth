@@ -82,7 +82,9 @@ module.exports = function (client, config, jwks, cookiekeys) {
       registration: false,
       registrationManagement: false,
       pkce: true,
-      webMessageResponseMode: true
+      webMessageResponseMode: true,
+      deviceCode: false,
+      jwtIntrospection: false
     },
 
     extraParams: [

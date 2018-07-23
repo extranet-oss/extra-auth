@@ -24,6 +24,7 @@
     "koa-etag": "^3.0.0",
     "koa-flash-simple": "0.0.3",
     "koa-hbs": "^1.0.0",
+    "koa-helmet": "^4.0.0",
     "koa-morgan": "^1.0.1",
     "koa-mount": "^3.0.0",
     "koa-passport": "^4.1.0",
@@ -33,13 +34,13 @@
     "localstorage-memory": "^1.0.2",
     "lodash": "^4.17.10",
     "node-jose": "^1.0.0",
-    "oidc-provider": "~4.2.2",
+    "oidc-provider": "~4.4.0",
     "passport-azure-ad": "^3.0.12",
     "socket.io-client": "^2.1.1",
     "statuses": "^1.5.0"
   },
   "devDependencies": {
-    "eslint": "^5.1.0",
-    "nodemon": "^1.18.2"
+    "eslint": "^5.2.0",
+    "nodemon": "^1.18.3"
   }
 }
