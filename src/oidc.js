@@ -104,7 +104,7 @@ module.exports = function (client, config, keystore) {
 
     // eslint-disable-next-line no-unused-vars
     async postLogoutRedirectUri(ctx) {
-      return 'https://tryextra.net/';
+      return 'https://local.tryextra.net/';
     },
 
     // eslint-disable-next-line no-unused-vars

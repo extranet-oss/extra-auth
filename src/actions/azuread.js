@@ -51,11 +51,14 @@ module.exports = function (router, oidc, config) {
     },
     async function azureadSuccess(ctx) {
       debug('Interaction azuread callback #2');
-      await oidc.interactionFinished(ctx.req, ctx.res, {
-        login: {
-          account: ctx.state.user.id
-        }
+
+      await oidc.setProviderSession(ctx.req, ctx.res, {
+        account: ctx.state.user.id
       });
+      ctx.state.details.accountId = ctx.state.user.id;
+      ctx.state.details.meta.done.push('login');
+      await ctx.state.details.save();
+      await ctx.redirect(`/interaction/?request_id=${ctx.state.details.uuid}`);
     }
   );
 };

@@ -1,0 +1,9 @@
+<ul>
+{{#each scopes}}
+  <li>{{this}}</li>
+{{/each}}
+</ul>
+<form class="text-center" action="/interaction/consent?request_id={{details.uuid}}" method="post">
+  <button type="submit" name="decision" value="cancel">Cancel</button>
+  <button type="submit" name="decision" value="consent">I consent</button>
+</form>
