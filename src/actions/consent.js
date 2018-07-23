@@ -18,7 +18,8 @@ module.exports = function (router, oidc, config) {
         });
       } else {
         await oidc.interactionFinished(ctx.req, ctx.res, {
-          error: 'access_denied'
+          error: 'access_denied',
+          error_description: 'End-User refused to consent'
         });
       }
     }
