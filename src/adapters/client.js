@@ -1,5 +1,5 @@
 const debug = require('debug')('extra-auth:adapter:client');
-const errors = require('@feathersjs/errors');
+const { NotFound, BadRequest } = require('@feathersjs/errors');
 
 module.exports = function (client) {
 
@@ -19,7 +19,7 @@ module.exports = function (client) {
       } catch (err) {
         debug(err);
 
-        if (err instanceof errors.NotFound || err instanceof errors.BadRequest) {
+        if (err instanceof NotFound || err instanceof BadRequest) {
           debug('Item not found, ignoring exception');
           return false;
         } else {
@@ -87,4 +87,4 @@ module.exports = function (client) {
   }
 
   return ClientAdapter;
-}
+};

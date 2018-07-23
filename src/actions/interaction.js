@@ -13,7 +13,7 @@ module.exports = function (router, oidc, client, config) {
 
   async function login_prompt(ctx) {
     if (ctx.state.client.trusted && ctx.state.details.params.bypass_signin !== undefined) {
-      debug(`Sign-in screen bypass accepted`);
+      debug('Sign-in screen bypass accepted');
       await ctx.redirect(`/interaction/azuread?request_id=${ctx.state.details.uuid}`);
       return;
     }
@@ -27,7 +27,7 @@ module.exports = function (router, oidc, client, config) {
 
   async function consent_prompt(ctx) {
     if (ctx.state.client.trusted) {
-      debug(`Client is trusted, ignoring consent`);
+      debug('Client is trusted, ignoring consent');
       await oidc.interactionFinished(ctx.req, ctx.res, {
         consent: {}
       });
@@ -50,7 +50,7 @@ module.exports = function (router, oidc, client, config) {
           done: []
         };
         ctx.state.details.save(ctx.state.details.exp - epochTime());
-        debug(`Initialized interaction meta data`);
+        debug('Initialized interaction meta data');
       }
 
       ctx.state.client = await clients.get(ctx.state.details.params.client_id);
@@ -65,12 +65,12 @@ module.exports = function (router, oidc, client, config) {
 
       debug(`Selecting ${prompt} prompt`);
       switch (prompt) {
-        case 'login':
-          await login_prompt(ctx);
-          break;
-        case 'consent':
-          await consent_prompt(ctx);
-          break;
+      case 'login':
+        await login_prompt(ctx);
+        break;
+      case 'consent':
+        await consent_prompt(ctx);
+        break;
       }
     }
   );
