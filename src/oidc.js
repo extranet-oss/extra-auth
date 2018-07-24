@@ -1,6 +1,6 @@
 const debug = require('debug')('extra-auth:server');
 const Provider = require('oidc-provider');
-const { union } = require('lodash');
+const { union, difference } = require('lodash');
 
 const errorHandler = require('./error.js');
 
@@ -128,7 +128,25 @@ module.exports = function (client, config, jwks, cookiekeys) {
     async interactionCheck(ctx) {
       debug('!!!!!!!!!!!!!!InteractionCheck!!!!!!!!!!!!!!', ctx.oidc.result);
 
-      if (!ctx.oidc.result || !ctx.oidc.result.consent) { //ctx.oidc.session.sidFor(ctx.oidc.client.clientId)) {
+      var matches = await authorizations.find({
+        query: {
+          $limit: 1,
+          user_id: ctx.oidc.session.accountId(),
+          client_id: ctx.oidc.params.client_id
+        }
+      });
+
+      var authorization;
+      var pass = false;
+      if (matches.total == 1) {
+        authorization = matches.data[0];
+
+        if (difference(ctx.oidc.params.scope.split(' '), authorization.scopes).length == 0)
+          pass = true;
+      }
+
+      if (ctx.oidc.promptPending('consent') ||
+      ((!ctx.oidc.result || !ctx.oidc.result.consent) && !pass)) { //ctx.oidc.session.sidFor(ctx.oidc.client.clientId)) {
         return {
           error: 'consent_required',
           error_description: 'client not authorized for End-User yet',
@@ -146,16 +164,7 @@ module.exports = function (client, config, jwks, cookiekeys) {
         };
       }
 
-      var matches = await authorizations.find({
-        query: {
-          $limit: 1,
-          user_id: ctx.oidc.session.accountId(),
-          client_id: ctx.oidc.params.client_id
-        }
-      });
-
-      if (matches.total == 1) {
-        var authorization = matches.data[0];
+      if (authorization) {
 
         debug('Client already authorized, updating scopes & timestamp');
         await authorizations.patch(authorization.id, {
