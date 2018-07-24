@@ -1,5 +1,6 @@
 const debug = require('debug')('extra-auth:server');
 const Provider = require('oidc-provider');
+const { union } = require('lodash');
 
 const errorHandler = require('./error.js');
 
@@ -8,6 +9,7 @@ module.exports = function (client, config, jwks, cookiekeys) {
   const Adapter = require('./adapters')(client);
 
   const users = client.service('users');
+  const authorizations = client.service('authorizations');
 
   const {
     logoutSource,
@@ -121,6 +123,55 @@ module.exports = function (client, config, jwks, cookiekeys) {
     unsupported: {
       idTokenSigningAlgValues: ['none', 'HS256', 'HS384', 'HS512'],
       userinfoSigningAlgValues: ['none', 'HS256', 'HS384', 'HS512']
+    },
+
+    async interactionCheck(ctx) {
+      debug('!!!!!!!!!!!!!!InteractionCheck!!!!!!!!!!!!!!', ctx.oidc.result);
+
+      if (!ctx.oidc.result || !ctx.oidc.result.consent) { //ctx.oidc.session.sidFor(ctx.oidc.client.clientId)) {
+        return {
+          error: 'consent_required',
+          error_description: 'client not authorized for End-User yet',
+          reason: 'client_not_authorized',
+        };
+      }
+
+      if (ctx.oidc.client.applicationType === 'native'
+        && ctx.oidc.params.response_type !== 'none'
+        && !ctx.oidc.result) {
+        return {
+          error: 'interaction_required',
+          error_description: 'native clients require End-User interaction',
+          reason: 'native_client_prompt',
+        };
+      }
+
+      var matches = await authorizations.find({
+        query: {
+          $limit: 1,
+          user_id: ctx.oidc.session.accountId(),
+          client_id: ctx.oidc.params.client_id
+        }
+      });
+
+      if (matches.total == 1) {
+        var authorization = matches.data[0];
+
+        debug('Client already authorized, updating scopes & timestamp');
+        await authorizations.patch(authorization.id, {
+          scopes: union(authorization.scopes, ctx.oidc.params.scope.split(' '))
+        });
+      } else {
+
+        debug('Client not authorized, creating entry');
+        await authorizations.create({
+          scopes: ctx.oidc.params.scope.split(' '),
+          client_id: ctx.oidc.params.client_id,
+          user_id: ctx.oidc.session.accountId()
+        });
+      }
+
+      return false;
     },
 
     // eslint-disable-next-line no-unused-vars

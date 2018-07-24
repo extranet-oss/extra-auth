@@ -1,4 +1,5 @@
 const debug = require('debug')('extra-auth:server');
+const { difference } = require('lodash');
 
 const epochTime = require('oidc-provider/lib/helpers/epoch_time.js');
 
@@ -10,6 +11,7 @@ module.exports = function (router, oidc, client, config) {
   const checkSession = require('../middlewares/check-interaction-session.js')(oidc);
 
   const clients = client.service('clients');
+  const authorizations = client.service('authorizations');
 
   async function login_prompt(ctx) {
     if (ctx.state.client.trusted && ctx.state.details.params.bypass_signin !== undefined) {
@@ -34,8 +36,35 @@ module.exports = function (router, oidc, client, config) {
       return;
     }
 
-    ctx.state.title = ctx.state.details.interaction.reason_description;
     ctx.state.scopes = ctx.state.details.params.scope.split(' ');
+    ctx.state.title = `Connect with ${ctx.state.client.name}`;
+
+    var matches = await authorizations.find({
+      query: {
+        $limit: 1,
+        user_id: ctx.state.details.accountId,
+        client_id: ctx.state.client.id
+      }
+    });
+
+    if (matches.total == 1) {
+
+      var authorization = matches.data[0];
+
+      if (difference(ctx.state.scopes, authorization.scopes).length == 0
+        && !ctx.state.prompts.includes('consent')) {
+        debug('Client is already authorized, skipping consent');
+        await oidc.interactionFinished(ctx.req, ctx.res, {
+          consent: {}
+        });
+        return;
+      }
+
+      debug('Client is already authorized, but new scopes or consent prompt');
+      ctx.state.title = `${ctx.state.client.name} is asking for new permissions`;
+      ctx.state.authorized_scopes = authorization.scopes;
+      ctx.state.scopes = difference(ctx.state.scopes, authorization.scopes);
+    }
 
     await ctx.render('consent');
   }
@@ -55,11 +84,12 @@ module.exports = function (router, oidc, client, config) {
 
       ctx.state.client = await clients.get(ctx.state.details.params.client_id);
 
+      ctx.state.prompts = ctx.state.details.params.prompt ? ctx.state.details.params.prompt.split(' ') : [];
+
       let prompt = 'consent';
 
       if (!ctx.state.details.accountId ||
-        (ctx.state.details.params.prompt &&
-          ctx.state.details.params.prompt.split(' ').includes('login') &&
+        (ctx.state.prompts.includes('login') &&
           !ctx.state.details.meta.done.includes('login')))
         prompt = 'login';
 

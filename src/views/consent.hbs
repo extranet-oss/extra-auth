@@ -1,3 +1,13 @@
+{{#if authorized_scopes}}
+<p>Already authorized scopes:</p>
+<ul>
+{{#each authorized_scopes}}
+  <li>{{this}}</li>
+{{/each}}
+</ul>
+<br>
+{{/if}}
+<p>New requested scopes:</p>
 <ul>
 {{#each scopes}}
   <li>{{this}}</li>
