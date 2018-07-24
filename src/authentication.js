@@ -21,26 +21,31 @@ module.exports = function (app, client, config) {
       allowHttpForRedirectUrl: config.hosts.login.startsWith('http'),
       passReqToCallback: false
     },
-    function(iss, sub, profile, accessToken, refreshToken, done) {
+    async function (iss, sub, profile, accessToken, refreshToken, done) {
       if (!profile.oid || !profile.upn)
         return done(null, false, 'Invalid azuread account.');
 
-      users.find({
-        query: {
-          intra_id: profile.upn
-        }
-      })
-        .then(matches => {
-          if (matches.total == 0)
-            return done(null, false, 'Your account is not yet registered on the intranet.');
+      try {
+        var matches = await users.find({
+          query: {
+            $limit: 1,
+            intra_code: profile.upn
+          }
+        });
+      } catch (err) {
+        done(err);
+      }
 
-          // deny login if user is suspended
-          if (matches.data[0].suspended)
-            return done(null, false, `Account suspended. ${matches.data[0].suspended_reason ? matches.data[0].suspended_reason : ''}`);
+      if (matches.total == 0)
+        return done(null, false, 'Your account is not yet registered on the intranet.');
 
-          done(null, matches.data[0]);
-        })
-        .catch(err => done(err));
+      var user = matches.data[0];
+
+      // deny login if user is suspended
+      if (user.suspended)
+        return done(null, false, `Account suspended. ${user.suspended_reason ? user.suspended_reason : ''}`);
+
+      done(null, user);
     }
   ));
 };
