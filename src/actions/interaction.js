@@ -36,8 +36,8 @@ module.exports = function (router, oidc, client, config) {
       return;
     }
 
-    ctx.state.scopes = ctx.state.details.params.scope.split(' ');
     ctx.state.title = `Connect with ${ctx.state.client.name}`;
+    ctx.state.scopes = ctx.state.details.scopes;
 
     var matches = await authorizations.find({
       query: {
@@ -51,8 +51,8 @@ module.exports = function (router, oidc, client, config) {
 
       var authorization = matches.data[0];
 
-      if (difference(ctx.state.scopes, authorization.scopes).length == 0
-        && !ctx.state.prompts.includes('consent')) {
+      if (difference(ctx.state.details.scopes, authorization.scopes).length == 0
+        && !ctx.state.details.prompts.includes('consent')) {
         debug('Client is already authorized, skipping consent');
         await oidc.interactionFinished(ctx.req, ctx.res, {
           consent: {}
@@ -63,7 +63,7 @@ module.exports = function (router, oidc, client, config) {
       debug('Client is already authorized, but new scopes or consent prompt');
       ctx.state.title = `${ctx.state.client.name} is asking for new permissions`;
       ctx.state.authorized_scopes = authorization.scopes;
-      ctx.state.scopes = difference(ctx.state.scopes, authorization.scopes);
+      ctx.state.scopes = difference(ctx.state.details.scopes, authorization.scopes);
     }
 
     await ctx.render('consent');
@@ -74,23 +74,12 @@ module.exports = function (router, oidc, client, config) {
     async function interaction(ctx) {
       debug('Interaction start', ctx.state.details.interaction.reason);
 
-      if (!ctx.state.details.meta) {
-        ctx.state.details.meta = {
-          done: []
-        };
-        ctx.state.details.save(ctx.state.details.exp - epochTime());
-        debug('Initialized interaction meta data');
-      }
-
       ctx.state.client = await clients.get(ctx.state.details.params.client_id);
-
-      ctx.state.prompts = ctx.state.details.params.prompt ? ctx.state.details.params.prompt.split(' ') : [];
 
       let prompt = 'consent';
 
       if (!ctx.state.details.accountId ||
-        (ctx.state.prompts.includes('login') &&
-          !ctx.state.details.meta.done.includes('login')))
+        ctx.state.details.prompts.includes('login'))
         prompt = 'login';
 
       debug(`Selecting ${prompt} prompt`);

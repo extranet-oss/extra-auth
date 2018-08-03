@@ -1,5 +1,6 @@
 const debug = require('debug')('extra-auth:server');
 const passport = require('koa-passport');
+const { pull } = require('lodash');
 
 const epochTime = require('oidc-provider/lib/helpers/epoch_time.js');
 
@@ -58,7 +59,8 @@ module.exports = function (router, oidc, config) {
         account: ctx.state.user.id
       });
       ctx.state.details.accountId = ctx.state.user.id;
-      ctx.state.details.meta.done.push('login');
+      pull(ctx.state.details.prompts, 'login');
+      ctx.state.details.params.prompt = ctx.state.details.prompts.join(' ');
       await ctx.state.details.save(ctx.state.details.exp - epochTime());
       await ctx.redirect(`/interaction/?request_id=${ctx.state.details.uuid}`);
     }

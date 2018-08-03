@@ -12,6 +12,9 @@ module.exports = function (oidc) {
 
     ctx.state.details = details;
 
+    ctx.state.details.prompts = ctx.state.details.params.prompt ? ctx.state.details.params.prompt.split(' ') : [];
+    ctx.state.details.scopes = ctx.state.details.params.scope.split(' ');
+
     await next();
   };
 };
